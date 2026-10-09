@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in | ClutchIQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="auth">
+  <section class="hero">
+    <div class="scene3d" aria-hidden="true">
+      <div class="orb" id="orb">
+        <div class="ring ring--a"></div>
+        <div class="ring ring--b"></div>
+        <div class="ring ring--c"></div>
+        <div class="core"></div>
+      </div>
+    </div>
+    <div class="brand" style="padding:0;font-size:2.4rem;position:relative">Clutch<em>IQ</em></div>
+    <span class="ai-badge" style="position:relative">AI Performance Coach</span>
+    <h1 style="position:relative">Train smarter. Prepare sharper. Beat your own numbers.</h1>
+    <p style="position:relative">Every weakness your coach flags becomes a daily plan. Every match builds your ClutchAI profile. Every day tracked moves your readiness up.</p>
+  </section>
+
+  <section class="pane">
+    <div class="tilt-wrap">
+      <div class="tilt-card" id="tiltCard">
+        <h2>Sign in</h2>
+        <div class="flash error" th:if="${param.error}" role="alert">Email or password is wrong. Check both and try again.</div>
+        <div class="flash" th:if="${param.logout}" role="status">You have signed out.</div>
+        <div class="flash" th:if="${param.registered}" role="status">Account created. Sign in to set up your team.</div>
+        <form class="form" th:action="@{/login}" method="post">
+          <div class="field"><label for="username">Email</label><input id="username" type="email" name="username" autocomplete="username" required autofocus></div>
+          <div class="field"><label for="password">Password</label><input id="password" type="password" name="password" autocomplete="current-password" required></div>
+          <button class="btn" type="submit">Sign in</button>
+        </form>
+        <p class="small muted" style="margin-top:18px">New coach? <a th:href="@{/register}">Create a coach account</a>. Players receive their login from their coach.</p>
+        <div class="demo"><strong>Demo logins</strong> (password <code>demo123</code>)<br>
+          Coach: coach@demo.com<br>Player with a gap to close: rahul@demo.com<br>Player on track: arjun@demo.com</div>
+      </div>
+    </div>
+  </section>
+</div>
+<script th:inline="javascript">
+  // Subtle 3D tilt on the sign-in card, following the pointer. No effect for reduced-motion users.
+  (function () {
+    var card = document.getElementById('tiltCard');
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!card || reduced || !window.matchMedia('(pointer: fine)').matches) return;
+    var wrap = card.parentElement;
+    wrap.addEventListener('mousemove', function (e) {
+      var r = wrap.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = 'rotateY(' + (px * 10) + 'deg) rotateX(' + (py * -10) + 'deg)';
+    });
+    wrap.addEventListener('mouseleave', function () { card.style.transform = 'rotateY(0deg) rotateX(0deg)'; });
+
+    // The orb also drifts slightly with the pointer across the whole hero panel.
+    var orb = document.getElementById('orb');
+    var hero = document.querySelector('.hero');
+    if (orb && hero) {
+      hero.addEventListener('mousemove', function (e) {
+        var r = hero.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        orb.style.marginLeft = (px * 30) + 'px';
+        orb.style.marginTop = (py * 30) + 'px';
+      });
+    }
+  })();
+</script>
+</body>
+</html>

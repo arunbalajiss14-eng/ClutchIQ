@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content)">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:replace="${title}">ClutchIQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <a class="brand" th:href="@{/home}">Clutch<em>IQ</em></a>
+
+    <!-- Team context (shared by coach and players) -->
+    <nav class="nav" th:if="${inTeam}" aria-label="Team">
+      <a th:href="@{/team}" th:classappend="${uri == '/team'} ? 'on'">Team overview</a>
+      <a th:href="@{/team/schedule}" th:classappend="${uri == '/team/schedule'} ? 'on'">Schedule</a>
+      <a th:href="@{/team/results}" th:classappend="${uri == '/team/results'} ? 'on'">Results</a>
+      <a th:href="@{/team/discussion}" th:classappend="${uri == '/team/discussion'} ? 'on'">Discussion</a>
+    </nav>
+
+    <!-- Coach personal context -->
+    <nav class="nav" th:if="${!inTeam and me.coach}" aria-label="Coach">
+      <a th:href="@{/coach}" th:classappend="${uri == '/coach'} ? 'on'">Dashboard</a>
+      <a th:href="@{/coach/players}" th:classappend="${#strings.startsWith(uri, '/coach/players')} ? 'on'">Players</a>
+      <a th:href="@{/coach/teams}" th:classappend="${uri == '/coach/teams'} ? 'on'">Teams</a>
+      <a th:href="@{/coach/matches}" th:classappend="${uri == '/coach/matches'} ? 'on'">Upcoming match</a>
+      <a th:href="@{/coach/profile}" th:classappend="${uri == '/coach/profile'} ? 'on'">My profile</a>
+    </nav>
+
+    <!-- Player personal context -->
+    <nav class="nav" th:if="${!inTeam and !me.coach}" aria-label="Player">
+      <a th:href="@{/player}" th:classappend="${uri == '/player'} ? 'on'">Dashboard</a>
+      <a th:href="@{/player/coach}" th:classappend="${uri == '/player/coach'} ? 'on'">AI Coach</a>
+      <a th:href="@{/player/routine}" th:classappend="${uri == '/player/routine'} ? 'on'">Daily routine</a>
+      <a th:href="@{/player/history}" th:classappend="${uri == '/player/history'} ? 'on'">Routine history</a>
+      <a th:href="@{/player/performance}" th:classappend="${uri == '/player/performance'} ? 'on'">My performance</a>
+      <a th:href="@{/player/matches}" th:classappend="${uri == '/player/matches'} ? 'on'">Upcoming match</a>
+      <a th:href="@{/player/profile}" th:classappend="${uri == '/player/profile'} ? 'on'">My profile</a>
+    </nav>
+
+    <div class="who">
+      <strong th:text="${me.fullName}">Name</strong>
+      <span th:text="${me.coach} ? 'Coach' : 'Player'">Role</span>
+      <form th:action="@{/logout}" method="post"><button class="linkbtn" type="submit">Sign out</button></form>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <details class="switch">
+        <summary>
+          <span class="dot"></span>
+          <span th:if="${inTeam}" th:text="${activeTeam != null} ? ${activeTeam.name} : 'Team'">Team</span>
+          <span th:if="${!inTeam}" th:text="${me.coach} ? 'Coach profile' : 'Player profile'">Profile</span>
+        </summary>
+        <div class="menu">
+          <a th:if="${me.coach}" th:href="@{/coach}" th:classappend="${!inTeam} ? 'on'">Coach profile<small>Players, performance, teams</small></a>
+          <a th:if="${!me.coach}" th:href="@{/player}" th:classappend="${!inTeam} ? 'on'">Player profile<small>AI Coach, routine, history</small></a>
+          <a th:href="@{/team}" th:classappend="${inTeam} ? 'on'">
+            <span th:text="${activeTeam != null} ? ${activeTeam.name} : 'Team'">Team</span>
+            <small>Matches, results, discussion</small>
+          </a>
+        </div>
+      </details>
+      <span class="role" th:if="${activeTeam != null}" th:text="${activeTeam.sport}">Sport</span>
+    </div>
+
+    <main class="content">
+      <div class="flash" th:if="${flash}" th:text="${flash}" role="status">Saved</div>
+      <div class="flash error" th:if="${error}" th:text="${error}" role="alert">Error</div>
+      <div th:replace="${content}"></div>
+    </main>
+  </div>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

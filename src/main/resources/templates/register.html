@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create coach account | ClutchIQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="auth">
+  <section class="hero">
+    <div class="brand" style="padding:0;font-size:2.4rem">Clutch<em>IQ</em></div>
+    <h1>Build a team that improves itself.</h1>
+    <p>Create your coach account, add your team and players, and let the AI Performance Coach turn each weakness into a daily plan.</p>
+  </section>
+  <section class="pane">
+    <h2>Create coach account</h2>
+    <div class="flash error" th:if="${error}" th:text="${error}" role="alert">Error</div>
+    <form class="form" th:action="@{/register}" method="post">
+      <div class="field"><label for="fullName">Full name</label><input id="fullName" type="text" name="fullName" required></div>
+      <div class="field"><label for="email">Email</label><input id="email" type="email" name="email" required></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" name="password" minlength="6" required><div class="hint">At least 6 characters.</div></div>
+      <div class="field"><label for="sport">Sport you coach</label><input id="sport" type="text" name="sport" placeholder="Cricket, football, basketball" required><div class="hint">One sport per account. To coach another sport, create a separate account.</div></div>
+      <button class="btn" type="submit">Create account</button>
+    </form>
+    <p class="small muted" style="margin-top:18px">Already have an account? <a th:href="@{/login}">Sign in</a></p>
+  </section>
+</div>
+</body>
+</html>

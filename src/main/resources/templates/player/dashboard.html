@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Dashboard | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head">
+    <div><h1 th:text="'Hi ' + ${#strings.arraySplit(me.fullName, ' ')[0]}">Hi</h1>
+      <p th:text="${pp.personalGoal != null and !pp.personalGoal.isBlank()} ? 'Your goal: ' + ${pp.personalGoal} : 'Your AI Performance Coach plan is ready below.'">Goal</p></div>
+    <a class="btn gold" th:href="@{/player/routine}">Log today's duties</a>
+  </div>
+
+  <div class="hero-coach" style="margin-bottom:20px">
+    <span class="ai-badge">AI Performance Coach</span>
+    <div class="greet" th:text="'Focus today: ' + ${coach.focusArea}">Focus today: Stamina</div>
+    <p class="why" th:text="${coach.focusWhy}">Why</p>
+    <div class="who-row" style="gap:20px;margin-top:16px;flex-wrap:wrap">
+      <div>
+        <div th:replace="~{fragments/parts :: ring(${coach.readinessOverall}, 'ready')}"></div>
+        <p class="small" style="text-align:center;margin-top:4px;color:#A9BBD6" th:if="${!coach.readinessHasFullData}" th:text="${coach.readinessSignalCount} + '/5 signals'">Partial</p>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div th:replace="~{fragments/parts :: priority(${coach.priorities[0]})}"></div>
+      </div>
+    </div>
+    <p style="margin-top:14px"><a class="btn gold sm" th:href="@{/player/coach}">Open full AI Performance Coach</a></p>
+  </div>
+
+  <div class="grid c4">
+    <div class="stat blue"><div class="num" th:text="${a.performanceScore}">0</div><div class="lbl">Performance (coach rating)</div></div>
+    <div class="stat"><div class="num" th:text="${a.staminaScore}">0</div><div class="lbl">Stamina (coach rating)</div></div>
+    <div class="stat gold"><div class="num" th:text="${coach.readinessOverall} + '%'">0%</div><div class="lbl">Match readiness</div></div>
+    <div class="stat"><div class="num" th:text="${coach.daysToMatch != null} ? ${coach.daysToMatch} : '-'">-</div><div class="lbl">Days to next match</div></div>
+  </div>
+
+  <div class="grid c2">
+    <div class="card locked">
+      <span class="tagline">From your coach</span>
+      <h2>Strength and weakness</h2>
+      <div class="item"><span class="muted small">Strength</span><strong th:text="${a.strength} ?: 'Not set yet'">-</strong></div>
+      <div class="item"><span class="muted small">Weakness</span><strong th:text="${a.weakness} ?: 'Not set yet'">-</strong></div>
+      <div class="item"><span class="muted small">Improvement plan</span><strong th:text="${a.improvementAreas} ?: 'Not set yet'">-</strong></div>
+      <p style="margin-top:10px"><a th:href="@{/player/performance}">Full performance details</a></p>
+    </div>
+
+    <div class="card">
+      <h2>Routine this week</h2>
+      <div class="week">
+        <div class="day" th:each="d : ${coach.week}">
+          <div class="box"><i th:if="${d.pct >= 0}" th:classappend="${d.pct >= 75} ? '' : (${d.pct >= 45} ? 'mid' : 'low')" th:style="'height:' + ${d.pct} + '%'"></i></div>
+          <span th:text="${d.label}">Mon</span>
+        </div>
+      </div>
+      <p class="small muted" style="margin-top:10px">Overall score: <strong th:text="${overall.overall} + '%'">70%</strong></p>
+      <p style="margin-top:6px"><a th:href="@{/player/history}">See the last 4 weeks</a></p>
+    </div>
+  </div>
+
+  <div class="grid c3" th:if="${pp.team != null}">
+    <div class="card"><h2>Next training</h2>
+      <div class="empty" th:if="${nextTraining == null}">None scheduled.</div>
+      <div th:if="${nextTraining != null}"><strong th:text="${nextTraining.focus}">Focus</strong><br>
+        <span th:text="${#temporals.format(nextTraining.trainingDate, 'EEE, dd MMM')} + (${nextTraining.trainingTime} != null ? ' at ' + ${#temporals.format(nextTraining.trainingTime, 'h:mm a')} : '')">Date</span><br>
+        <span class="muted small" th:text="${nextTraining.location}">Place</span></div></div>
+    <div class="card"><h2>Next match</h2>
+      <div class="empty" th:if="${nextMatch == null}">None scheduled.</div>
+      <div th:if="${nextMatch != null}"><strong th:text="'vs ' + ${nextMatch.opponent}">Opp</strong><br>
+        <span th:text="${#temporals.format(nextMatch.matchDate, 'EEE, dd MMM')}">Date</span><br>
+        <span class="muted small" th:text="${nextMatch.location}">Place</span><br>
+        <span class="tag" th:classappend="${selectedNext} ? 'win' : ''" th:text="${selectedNext} ? 'You are in the squad' : 'Squad not picked for you yet'">Squad</span></div></div>
+    <div class="card"><h2>Team announcements</h2>
+      <div class="empty" th:if="${#lists.isEmpty(news)}">Nothing new.</div>
+      <div class="item" th:each="n : ${news}"><strong th:text="${n.title}">Title</strong><span class="small" th:text="${n.body}">Body</span></div></div>
+  </div>
+</section>
+</body>
+</html>

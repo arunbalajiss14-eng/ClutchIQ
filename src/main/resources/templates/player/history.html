@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Routine history | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head">
+    <div><h1>Routine history</h1><p>Your last 4 weeks of daily routine, sleep and energy, week by week.</p></div>
+    <a class="btn gold" th:href="@{/player/routine}">Log today's routine</a>
+  </div>
+
+  <div class="grid c4">
+    <div class="stat blue"><div class="num" th:text="${h.monthCompletion} + '%'">0%</div><div class="lbl">Routine completed, 4 weeks</div></div>
+    <div class="stat"><div class="num" th:text="${h.avgSleep != null} ? ${h.avgSleep} : '-'">-</div><div class="lbl" th:text="'Avg sleep hours (target ' + ${h.sleepTarget} + ')'">Avg sleep</div></div>
+    <div class="stat gold"><div class="num" th:text="${h.avgEnergy != null} ? ${h.avgEnergy} : '-'">-</div><div class="lbl">Avg energy out of 10</div></div>
+    <div class="stat"><div class="num" th:text="${h.daysLogged} + '/28'">0/28</div><div class="lbl">Days logged</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h2>Week by week</h2>
+    <div class="scroll">
+      <table class="tbl">
+        <thead><tr><th>Week</th><th>Routine completed</th><th>Avg sleep</th><th>Avg energy</th><th>Days logged</th></tr></thead>
+        <tbody>
+          <tr th:each="w : ${h.weeks}">
+            <td><strong th:text="${w.label}">Last 7 days</strong></td>
+            <td style="min-width:180px"><div class="who-row" style="gap:10px"><div class="bar" style="flex:1"><i th:style="'width:' + ${w.completion} + '%'"></i></div><strong th:text="${w.completion} + '%'">70%</strong></div></td>
+            <td th:text="${w.avgSleep != null} ? ${w.avgSleep} + ' h' : '-'">7 h</td>
+            <td th:text="${w.avgEnergy != null} ? ${w.avgEnergy} + ' / 10' : '-'">7 / 10</td>
+            <td th:text="${w.daysLogged} + ' / 7'">5 / 7</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid c2">
+    <div class="card">
+      <h2>Daily routine completed</h2>
+      <p class="muted small">Each bar is one day. Empty means nothing was logged.</p>
+      <div class="mini-chart" role="img" aria-label="Daily routine completion for the last 28 days">
+        <div class="b" th:each="d : ${h.days}" th:title="${d.dateLabel} + ': ' + (${d.completion} >= 0 ? ${d.completion} + '%' : 'not logged')">
+          <i class="turf" th:if="${d.completion >= 0}" th:style="'height:' + ${d.completion} + '%'"></i>
+        </div>
+      </div>
+      <div class="chart-axis"><span th:text="${h.days[0].dateLabel}">Start</span><span>Today</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Body condition: sleep</h2>
+      <p class="muted small" th:text="'Bar height is hours slept compared with your ' + ${h.sleepTarget} + ' hour target.'">Sleep</p>
+      <div class="mini-chart" role="img" aria-label="Sleep for the last 28 days">
+        <div class="b" th:each="d : ${h.days}" th:title="${d.dateLabel} + ': ' + (${d.sleepHours} != null ? ${d.sleepHours} + ' h' : 'not logged')">
+          <i th:if="${d.sleepPct >= 0}" th:style="'height:' + ${d.sleepPct} + '%'"></i>
+        </div>
+      </div>
+      <div class="chart-axis"><span th:text="${h.days[0].dateLabel}">Start</span><span>Today</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>Body condition: energy</h2>
+    <p class="muted small">Your own energy score, 1 to 10 each day.</p>
+    <div class="mini-chart" role="img" aria-label="Energy for the last 28 days">
+      <div class="b" th:each="d : ${h.days}" th:title="${d.dateLabel} + ': ' + (${d.energy} != null ? ${d.energy} + ' / 10' : 'not logged')">
+        <i class="cyan" th:if="${d.energyPct >= 0}" th:style="'height:' + ${d.energyPct} + '%'"></i>
+      </div>
+    </div>
+    <div class="chart-axis"><span th:text="${h.days[0].dateLabel}">Start</span><span>Today</span></div>
+  </div>
+</section>
+</body>
+</html>

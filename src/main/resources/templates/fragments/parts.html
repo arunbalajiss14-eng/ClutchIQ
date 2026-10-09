@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="ring(value, label)" class="ring">
+  <svg viewBox="0 0 120 120" aria-hidden="true">
+    <circle class="track" cx="60" cy="60" r="50" pathLength="100"/>
+    <circle class="val" cx="60" cy="60" r="50" pathLength="100" th:attr="stroke-dasharray=|${value} 100|"/>
+  </svg>
+  <div class="txt"><span th:text="${value} + '%'">70%</span><small th:text="${label}">label</small></div>
+</div>
+
+<!-- One AI Performance Coach priority item. pr is a com.mevsme.view.Priority -->
+<div th:fragment="priority(pr)" class="priority" th:classappend="${pr.done} ? 'done'">
+  <span class="icon" th:text="${pr.icon}">🔥</span>
+  <span>
+    <h3 th:text="${pr.title}">Endurance training</h3>
+    <span th:text="${pr.detail}">Detail</span>
+    <span class="why muted" th:text="${pr.why}">Why</span>
+  </span>
+  <span class="pill" th:classappend="${pr.done} ? 'done' : 'pending'" th:text="${pr.done} ? 'Done' : 'To do'">Done</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Teams | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Teams</h1><p>Create a team for each squad you coach in <strong th:text="${coachSport} ?: 'your sport'">your sport</strong>. The active team is the one the Team view and player list show.</p></div></div>
+  <div class="grid c21">
+    <div class="card">
+      <h2>Your teams</h2>
+      <div class="empty" th:if="${#lists.isEmpty(teams)}">No teams yet. Create your first one on the right.</div>
+      <div class="list">
+        <div class="item" th:each="t : ${teams}">
+          <div class="who-row">
+            <span class="badge" th:text="${#strings.substring(t.name, 0, 1)}">T</span>
+            <span style="flex:1"><strong th:text="${t.name}">Team</strong><span class="muted small" th:text="${t.sport}">Sport</span></span>
+            <span class="tag win" th:if="${activeTeam != null and activeTeam.id == t.id}">Active</span>
+            <form th:if="${activeTeam == null or activeTeam.id != t.id}" th:action="@{/coach/teams/{id}/activate(id=${t.id})}" method="post"><button class="btn sm line" type="submit">Make active</button></form>
+          </div>
+          <details style="margin-top:10px">
+            <summary style="cursor:pointer;font-weight:600;font-size:.9rem">Rename or delete</summary>
+            <form th:action="@{/coach/teams/{id}/rename(id=${t.id})}" method="post" class="who-row" style="margin-top:10px;gap:8px">
+              <input type="text" name="name" th:value="${t.name}" required style="flex:1">
+              <button class="btn sm" type="submit">Rename</button>
+            </form>
+            <form th:action="@{/coach/teams/{id}/delete(id=${t.id})}" method="post" style="margin-top:8px"
+                  th:attr="data-name=${t.name}" onsubmit="return confirm('Delete ' + '&quot;' + this.dataset.name + '&quot;' + '? This removes its matches, training, tournaments and discussion. It is blocked while any player is still on the team.');">
+              <button class="btn sm line" type="submit">Delete team</button>
+            </form>
+          </details>
+        </div>
+      </div>
+    </div>
+    <div class="card editable">
+      <h2>Create a team</h2>
+      <form class="form" th:action="@{/coach/teams}" method="post">
+        <div class="field"><label for="name">Team name</label><input id="name" type="text" name="name" required></div>
+        <div class="field"><label for="desc">Description</label><textarea id="desc" name="description"></textarea></div>
+        <div><button class="btn" type="submit">Create team</button></div>
+      </form>
+    </div>
+  </div>
+</section>
+</body>
+</html>

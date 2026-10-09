@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Upcoming match | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Upcoming match</h1><p>Create and edit matches, pick the squad by overall percentage, and share the ranking.</p></div></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h2>Share the ranking</h2>
+    <p class="muted small">A public link that shows every player's overall percentage. It needs no login, so only share it with people you trust. Turn it off any time.</p>
+    <div th:if="${shareUrl != null}">
+      <div class="field"><input type="text" readonly th:value="${shareUrl}" onclick="this.select()" aria-label="Share link"></div>
+      <form th:action="@{/coach/share/disable}" method="post" style="margin-top:10px"><button class="btn sm line" type="submit">Turn link off</button></form>
+    </div>
+    <form th:if="${shareUrl == null}" th:action="@{/coach/share/enable}" method="post"><button class="btn sm" type="submit">Create share link</button></form>
+  </div>
+
+  <div th:each="v : ${views}" class="card" style="margin-bottom:20px">
+    <div class="head" style="margin-bottom:12px">
+      <div>
+        <h2 th:text="'vs ' + ${v.match.opponent}">vs Team</h2>
+        <p class="small muted" th:text="${#temporals.format(v.match.matchDate, 'EEEE, dd MMM yyyy')} + (${v.match.matchTime} != null ? ' at ' + ${#temporals.format(v.match.matchTime, 'h:mm a')} : '')">Date</p>
+      </div>
+      <span class="ai-badge" th:text="${v.confirmedCount} + ' of ' + ${v.selectedCount} + ' confirmed'">0 of 0 confirmed</span>
+    </div>
+
+    <form th:action="@{/coach/matches/{id}/delete(id=${v.match.id})}" method="post" style="margin-bottom:14px"
+          th:attr="data-opp=${v.match.opponent}" onsubmit="return confirm('Delete the match vs ' + this.dataset.opp + '? This also removes its squad picks.');">
+      <button class="btn sm line" type="submit">Delete match</button>
+    </form>
+
+    <div class="grid c2">
+      <details>
+        <summary style="cursor:pointer;font-weight:600">Match details and fees</summary>
+        <form class="form" style="margin-top:12px" th:action="@{/coach/matches/{id}(id=${v.match.id})}" method="post">
+          <div class="row">
+            <div class="field"><label>Opponent</label><input type="text" name="opponent" th:value="${v.match.opponent}" required></div>
+            <div class="field"><label>Date</label><input type="date" name="matchDate" th:value="${v.match.matchDate}" required></div>
+            <div class="field"><label>Time</label><input type="time" name="matchTime" th:value="${v.match.matchTime}"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Location</label><input type="text" name="location" th:value="${v.match.location}"></div>
+            <div class="field"><label>Minimum age</label><input type="number" min="0" max="99" name="ageRequirement" th:value="${v.match.ageRequirement}"></div>
+            <div class="field"><label>Fee</label><input type="text" name="fee" th:value="${v.match.fee}" placeholder="Rs 200, or Free"></div>
+          </div>
+          <div class="field"><label>Other information</label><textarea name="info" th:text="${v.match.info}"></textarea></div>
+          <div><button class="btn sm" type="submit">Save match details</button></div>
+        </form>
+      </details>
+
+      <details open>
+        <summary style="cursor:pointer;font-weight:600">Select squad, ranked by overall %</summary>
+        <form th:action="@{/coach/matches/{id}/squad(id=${v.match.id})}" method="post" style="margin-top:10px">
+          <div class="list">
+            <label class="item who-row" style="cursor:pointer" th:each="pk : ${v.picks}">
+              <input type="checkbox" name="playerIds" th:value="${pk.player.id}" th:checked="${pk.selected}">
+              <span style="flex:1" th:text="${pk.player.user.fullName}">Name</span>
+              <span class="tag" th:if="${pk.selected}" th:classappend="${pk.confirmed} ? 'win' : 'draw'" th:text="${pk.confirmed} ? 'Confirmed' : 'Awaiting confirmation'">Confirmed</span>
+              <span class="tag" th:classappend="${pk.overall >= 70} ? 'win' : (${pk.overall >= 55} ? 'draw' : 'loss')" th:text="${pk.overall} + '%'">60%</span>
+            </label>
+          </div>
+          <button class="btn sm" type="submit" style="margin-top:10px">Save squad</button>
+        </form>
+      </details>
+    </div>
+  </div>
+
+  <div class="card editable">
+    <h2>Create a match</h2>
+    <form class="form" th:action="@{/coach/matches}" method="post">
+      <div class="row">
+        <div class="field"><label for="mo">Opponent</label><input id="mo" type="text" name="opponent" required></div>
+        <div class="field"><label for="md">Date</label><input id="md" type="date" name="matchDate" required></div>
+        <div class="field"><label for="mt">Time</label><input id="mt" type="time" name="matchTime"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="ml">Location</label><input id="ml" type="text" name="location"></div>
+        <div class="field"><label for="ma">Minimum age</label><input id="ma" type="number" min="0" max="99" name="ageRequirement"></div>
+        <div class="field"><label for="mf">Fee</label><input id="mf" type="text" name="fee" placeholder="Rs 200, or Free"></div>
+      </div>
+      <div class="field"><label for="mi">Other information</label><textarea id="mi" name="info"></textarea></div>
+      <div><button class="btn" type="submit">Create match</button></div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

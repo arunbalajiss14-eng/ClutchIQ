@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>AI Performance Coach | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head">
+    <div><span class="ai-badge">AI Performance Coach</span>
+      <h1 style="margin-top:8px">Today's plan</h1></div>
+    <a class="btn line sm" th:href="@{/player/routine}">Update daily duties</a>
+  </div>
+
+  <div class="hero-coach" style="margin-bottom:20px">
+    <span class="ai-badge">Focus of the day</span>
+    <div class="greet" th:text="${coach.focusArea}">Stamina</div>
+    <p class="why" th:text="${coach.focusWhy}">Why this focus was chosen</p>
+    <p class="why" th:if="${coach.daysToMatch != null}" style="margin-top:10px">
+      🏆 Next match in <strong th:text="${coach.daysToMatch}">3</strong> day(s)<span th:if="${coach.matchOpponent != null}" th:text="' against ' + ${coach.matchOpponent}"></span>.
+    </p>
+  </div>
+
+  <div class="grid c21">
+    <div>
+      <div class="card" style="margin-bottom:20px">
+        <h2>Today's priorities</h2>
+        <p class="muted small">Generated from your coach's notes. Mark these done from Daily duties.</p>
+        <div class="priority-list">
+          <th:block th:each="pr : ${coach.priorities}"><div th:replace="~{fragments/parts :: priority(${pr})}"></div></th:block>
+        </div>
+      </div>
+
+      <div class="card" th:if="${coach.hasYesterday}">
+        <h2>Yesterday's review</h2>
+        <div class="review-grid">
+          <div class="review-line" th:each="rl : ${coach.yesterdayLines}">
+            <span th:text="${rl.label}">Training</span>
+            <span class="tag" th:classappend="${rl.state == 'DONE'} ? 'done' : (${rl.state == 'PARTIAL'} ? 'part' : (${rl.state == 'MISSED'} ? 'miss' : ''))" th:text="${rl.state == 'PENDING'} ? 'Not logged' : ${#strings.capitalize(#strings.toLowerCase(rl.state))}">Done</span>
+          </div>
+        </div>
+        <p style="margin-top:14px"><strong th:text="${coach.yesterdayCompletion} + '% completed. '">80%</strong><span th:text="${coach.reviewFeedback}">Feedback</span></p>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:20px">
+        <h2>Match readiness</h2>
+        <div class="readiness-wrap">
+          <div>
+            <div th:replace="~{fragments/parts :: ring(${coach.readinessOverall}, 'ready')}"></div>
+            <p class="small muted" style="text-align:center;margin-top:6px" th:if="${!coach.readinessHasFullData}" th:text="${coach.readinessSignalCount} + ' of 5 signals'">Partial data</p>
+          </div>
+          <div class="readiness-bars">
+            <div class="row" th:each="m : ${coach.readinessBreakdown}">
+              <span th:text="${m.label}">Training</span>
+              <div class="bar"><i th:style="'width:' + ${m.value} + '%'"></i></div>
+              <span th:text="${m.value} + '%'">80%</span>
+            </div>
+          </div>
+        </div>
+        <p class="note" th:text="${coach.readinessNote}">Note</p>
+      </div>
+
+      <div class="card">
+        <h2>Last 7 days</h2>
+        <div class="week">
+          <div class="day" th:each="d : ${coach.week}">
+            <div class="box"><i th:if="${d.pct >= 0}"
+                th:classappend="${d.pct >= 75} ? '' : (${d.pct >= 45} ? 'mid' : 'low')"
+                th:style="'height:' + ${d.pct} + '%'"></i></div>
+            <span th:text="${d.label}">Mon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid c21" style="margin-top:20px">
+    <div class="drill-card">
+      <span class="ai-badge">ClutchAI pressure drill</span>
+      <div class="scenario" th:text="${coach.drill.scenario}">Final period</div>
+      <p class="why" th:text="${coach.drill.reason}">Why this drill</p>
+      <p class="why" style="margin-top:-6px">This is a focused practice rep for your toughest match moment, not a real match. Try it, then log how many of your attempts succeeded below — ClutchAI raises the target each time you hit it.</p>
+      <p>Target: <strong th:text="${coach.drill.nextTarget} + ' of ' + ${coach.drill.attempts}">8 of 10</strong> successful attempts</p>
+      <div class="drill-history-wrap" th:if="${coach.drill.hasHistory}">
+        <div class="drill-history">
+          <div class="col" th:each="h : ${coach.drill.history}">
+            <b th:text="${h.successful} + '/' + ${h.attempts}">7/10</b>
+            <i th:style="'height:' + ${h.pct} + '%'"></i>
+          </div>
+        </div>
+        <p class="drill-history-caption">Your last <span th:text="${#lists.size(coach.drill.history)}">3</span> logged attempts at this drill, oldest to most recent.</p>
+      </div>
+      <form th:action="@{/player/coach/drill}" method="post" class="form" style="margin-top:16px">
+        <input type="hidden" name="scenario" th:value="${coach.drill.scenario}">
+        <div class="row">
+          <div class="field"><label style="color:#fff">Attempts</label><input type="number" name="attempts" min="1" max="50" th:value="${coach.drill.attempts}" required></div>
+          <div class="field"><label style="color:#fff">Successful</label><input type="number" name="successful" min="0" max="50" required></div>
+        </div>
+        <div><button class="btn gold sm" type="submit">Log drill result</button></div>
+      </form>
+    </div>
+
+    <div class="card navy">
+      <h2>ClutchAI insights</h2>
+      <div class="empty" style="border-color:#ffffff33;color:#A9BBD6" th:if="${#lists.isEmpty(coach.clutchInsights)}">Add match entries with your coach to unlock patterns.</div>
+      <div class="list">
+        <div class="item" style="border-color:#ffffff22" th:each="i : ${coach.clutchInsights}" th:text="${i}">Insight</div>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

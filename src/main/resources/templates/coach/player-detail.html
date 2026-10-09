@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Player | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head">
+    <div class="who-row">
+      <span class="badge" style="width:64px;height:64px;font-size:1.6rem" th:text="${pp.user.initials}">AB</span>
+      <div>
+        <h1 th:text="${pp.user.fullName}">Player name</h1>
+        <p><span th:text="${pp.playingRole}">Role</span> <span th:if="${pp.sport != null}">in <span th:text="${pp.sport}">Sport</span></span></p>
+      </div>
+    </div>
+    <a class="btn line sm" th:href="@{/coach/players}">Back to players</a>
+  </div>
+
+  <div class="card" style="margin-bottom:20px" th:if="${!#lists.isEmpty(otherTeams)}">
+    <h2>Move to another team</h2>
+    <p class="muted small">Moves this player to a different team you coach. Since one account coaches one sport, both teams are the same sport.</p>
+    <form th:action="@{/coach/players/{id}/move-team(id=${pp.id})}" method="post" class="form">
+      <div class="row">
+        <div class="field"><label>Team</label>
+          <select name="teamId" required><option th:each="t : ${otherTeams}" th:value="${t.id}" th:text="${t.name}">Team</option></select></div>
+        <div style="align-self:flex-end"><button class="btn sm" type="submit">Move player</button></div>
+      </div>
+    </form>
+  </div>
+
+  <div class="grid c3">
+    <div class="card">
+      <h2>Biodata</h2>
+      <p class="muted small">Edited by the player. You can read it here.</p>
+      <div class="item"><span class="muted small">Age</span><strong th:text="${pp.age} ?: '-'">-</strong></div>
+      <div class="item"><span class="muted small">Height and weight</span><strong th:text="(${pp.heightCm} != null ? ${pp.heightCm} + ' cm' : '-') + ', ' + (${pp.weightKg} != null ? ${pp.weightKg} + ' kg' : '-')">-</strong></div>
+      <div class="item"><span class="muted small">Contact</span><strong th:text="${pp.phone} ?: '-'">-</strong></div>
+      <div class="item"><span class="muted small">Login email</span><strong th:text="${pp.user.email}">mail</strong></div>
+      <div class="item" th:if="${pp.personalGoal != null and !pp.personalGoal.isBlank()}"><span class="muted small">Personal goal</span><strong th:text="${pp.personalGoal}">goal</strong></div>
+    </div>
+
+    <div class="card">
+      <h2>Match readiness</h2>
+      <p class="muted small">AI Performance Coach reading, from this player's last 7 days.</p>
+      <div class="who-row" style="gap:18px">
+        <div>
+          <div th:replace="~{fragments/parts :: ring(${coach.readinessOverall}, 'ready')}"></div>
+          <p class="small muted" style="text-align:center;margin-top:4px" th:if="${!coach.readinessHasFullData}" th:text="${coach.readinessSignalCount} + ' of 5 signals'">Partial data</p>
+        </div>
+        <div>
+          <span class="ai-badge" th:text="${coach.focusArea}">Focus</span>
+          <p class="small" style="margin-top:8px" th:text="${coach.readinessNote}">Note</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Performance trend</h2>
+      <div class="empty" th:if="${#lists.isEmpty(history)}">No ratings yet.</div>
+      <div class="spark" th:if="${!#lists.isEmpty(history)}">
+        <div class="col" th:each="h : ${history}">
+          <b th:text="${h.score}">60</b>
+          <i th:style="'height:' + ${h.score} + '%'"></i>
+          <span th:text="${#temporals.format(h.entryDate, 'dd MMM')}">01 Jan</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card locked" style="margin-bottom:20px">
+    <span class="tagline">Coach-controlled. The player can read this but never edit it.</span>
+    <h2>Performance assessment</h2>
+    <form class="form" th:action="@{/coach/players/{id}/assessment(id=${pp.id})}" method="post">
+      <div class="row">
+        <div class="field"><label for="strength">Strength</label><input id="strength" type="text" name="strength" th:value="${a.strength}"></div>
+        <div class="field"><label for="weakness">Weakness</label><input id="weakness" type="text" name="weakness" th:value="${a.weakness}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="bestIn">Best in</label><input id="bestIn" type="text" name="bestIn" th:value="${a.bestIn}"></div>
+        <div class="field"><label for="worstIn">Worst in</label><input id="worstIn" type="text" name="worstIn" th:value="${a.worstIn}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="recent">Recent performance</label><input id="recent" type="text" name="recentPerformance" th:value="${a.recentPerformance}"></div>
+        <div class="field"><label for="hist">Historical performance</label><input id="hist" type="text" name="historicalPerformance" th:value="${a.historicalPerformance}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="perf">Performance rating (0 to 100)</label><input id="perf" type="number" min="0" max="100" name="performanceScore" th:value="${a.performanceScore}" required><div class="hint">Saving adds today's point to the trend chart.</div></div>
+        <div class="field"><label for="stam">Stamina rating (0 to 100)</label><input id="stam" type="number" min="0" max="100" name="staminaScore" th:value="${a.staminaScore}" required></div>
+      </div>
+      <div class="field"><label for="imp">Improvement areas</label><textarea id="imp" name="improvementAreas" th:text="${a.improvementAreas}"></textarea></div>
+      <div class="field"><label for="req">Training requirements</label><textarea id="req" name="trainingRequirements" th:text="${a.trainingRequirements}"></textarea></div>
+      <div class="field"><label for="notes">Coach notes and feedback</label><textarea id="notes" name="coachNotes" th:text="${a.coachNotes}"></textarea></div>
+      <div><button class="btn" type="submit">Save assessment</button></div>
+    </form>
+  </div>
+
+  <div class="grid c21">
+    <div class="card">
+      <span class="ai-badge">AI recommended training</span>
+      <h2 style="margin-top:8px">Today's plan for this player</h2>
+      <p class="muted small">Generated from the weakness you set below. Adjust the assessment to change it.</p>
+      <div class="priority-list">
+        <th:block th:each="pr : ${coach.priorities}"><div th:replace="~{fragments/parts :: priority(${pr})}"></div></th:block>
+      </div>
+    </div>
+
+    <div class="card navy">
+      <h2>ClutchAI</h2>
+      <p class="muted small">When does this player perform best? Values are compared with the player's own average.</p>
+      <div class="list" style="margin-bottom:12px">
+        <div class="item" style="border-color:#ffffff22" th:each="i : ${clutch.insights}" th:text="${i}">Insight</div>
+      </div>
+      <div class="scroll" th:if="${clutch.enough}">
+        <table class="tbl" style="color:#fff">
+          <thead><tr><th style="color:#A9BBD6">Situation</th><th style="color:#A9BBD6">Average</th><th style="color:#A9BBD6">Entries</th><th style="color:#A9BBD6">Vs baseline</th></tr></thead>
+          <tbody>
+            <tr th:each="s : ${clutch.stats}">
+              <td style="border-color:#ffffff22" th:text="${s.situation}">Close game</td>
+              <td style="border-color:#ffffff22" th:text="${s.average}">27</td>
+              <td style="border-color:#ffffff22" th:text="${s.count}">2</td>
+              <td style="border-color:#ffffff22"><span class="tag" th:classappend="${s.deltaPct > 0} ? 'win' : (${s.deltaPct < 0} ? 'loss' : 'draw')" th:text="(${s.deltaPct} > 0 ? '+' : '') + ${s.deltaPct} + '%'">+50%</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="muted small" style="margin-top:8px" th:text="'Baseline (average of all ' + ${clutch.entryCount} + ' entries): ' + ${clutch.baseline}">Baseline</p>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

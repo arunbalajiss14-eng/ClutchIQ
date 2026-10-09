@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Coach dashboard | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head">
+    <div>
+      <h1>Coach dashboard</h1>
+      <p th:if="${activeTeam != null}">Overview of <strong th:text="${activeTeam.name}">Team</strong> and the players who need your attention.</p>
+    </div>
+    <a class="btn gold" th:href="@{/coach/players}">Manage players</a>
+  </div>
+
+  <div class="empty" th:if="${activeTeam == null}">
+    <p><strong>You have no team yet.</strong></p>
+    <p>Create a team, choose its sport, then add your players.</p>
+    <a class="btn" th:href="@{/coach/teams}">Create your first team</a>
+  </div>
+
+  <th:block th:if="${activeTeam != null}">
+    <div class="grid c4">
+      <div class="stat"><div class="num" th:text="${#lists.size(rows)}">0</div><div class="lbl">Players on the team</div></div>
+      <div class="stat blue"><div class="num"><span th:text="${teamAvg}">0</span><small>avg</small></div><div class="lbl">Team performance rating</div></div>
+      <div class="stat gold"><div class="num" th:text="${#lists.size(matches)}">0</div><div class="lbl">Upcoming matches</div></div>
+      <div class="stat">
+        <div class="num" th:text="${lastResult != null} ? ${lastResult.resultLabel} : '-'">-</div>
+        <div class="lbl" th:text="${lastResult != null} ? |${lastResult.ourScore} to ${lastResult.theirScore} vs ${lastResult.opponent}| : 'No result yet'">Last result</div>
+      </div>
+    </div>
+
+    <div class="grid c2">
+      <div class="card">
+        <h2>Players needing improvement</h2>
+        <div class="empty" th:if="${#lists.isEmpty(needs)}">Add players to see who needs work.</div>
+        <div class="list">
+          <a class="item who-row" style="text-decoration:none;color:inherit" th:each="r : ${needs}" th:href="@{/coach/players/{id}(id=${r.profile.id})}">
+            <span class="badge" th:text="${r.profile.user.initials}">AB</span>
+            <span style="flex:1">
+              <strong th:text="${r.profile.user.fullName}">Name</strong>
+              <span class="muted small" th:text="${r.assessment.improvementAreas != null and !r.assessment.improvementAreas.isBlank()} ? ${r.assessment.improvementAreas} : 'No improvement plan yet'">Plan</span>
+            </span>
+            <span class="tag" th:classappend="${r.assessment.performanceScore >= 70} ? 'win' : (${r.assessment.performanceScore >= 55} ? 'draw' : 'loss')" th:text="${r.assessment.performanceScore}">60</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="card navy">
+        <h2>ClutchAI insights</h2>
+        <p class="muted small">Situations where players perform above their own average.</p>
+        <div class="empty" style="border-color:#ffffff33;color:#A9BBD6" th:if="${#lists.isEmpty(insights)}">Add match entries on a player page to unlock patterns.</div>
+        <div class="list">
+          <div class="item" style="border-color:#ffffff22" th:each="i : ${insights}" th:text="${i}">Insight</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid c3">
+      <div class="card">
+        <h2>Upcoming matches</h2>
+        <div class="empty" th:if="${#lists.isEmpty(matches)}">None scheduled.</div>
+        <div class="item" th:each="m : ${matches}">
+          <strong th:text="'vs ' + ${m.opponent}">vs Team</strong>
+          <span class="muted small" th:text="${#temporals.format(m.matchDate, 'EEE, dd MMM')} + (${m.location} != null ? ' at ' + ${m.location} : '')">Date</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Training</h2>
+        <div class="empty" th:if="${#lists.isEmpty(trainings)}">None scheduled.</div>
+        <div class="item" th:each="t : ${trainings}">
+          <strong th:text="${t.focus != null} ? ${t.focus} : 'Training session'">Focus</strong>
+          <span class="muted small" th:text="${#temporals.format(t.trainingDate, 'EEE, dd MMM')} + (${t.trainingTime} != null ? ', ' + ${#temporals.format(t.trainingTime, 'h:mm a')} : '')">Date</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Tournaments</h2>
+        <div class="empty" th:if="${#lists.isEmpty(tournaments)}">None published.</div>
+        <div class="item" th:each="t : ${tournaments}">
+          <strong th:text="${t.name}">Cup</strong>
+          <span class="muted small" th:text="${#temporals.format(t.startDate, 'dd MMM yyyy')} + (${t.location} != null ? ' at ' + ${t.location} : '')">Date</span>
+        </div>
+      </div>
+    </div>
+
+    <p><a class="btn line sm" th:href="@{/team}">Open team view to publish matches, training and results</a></p>
+  </th:block>
+</section>
+</body>
+</html>

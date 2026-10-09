@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Discussion | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Discussion</h1><p>Talk strategy, preparation and improvement with the coach and teammates. Tick the box to ask the coach a question.</p></div></div>
+
+  <div class="grid c21">
+    <div class="card">
+      <h2>Conversation</h2>
+      <div class="empty" th:if="${#lists.isEmpty(posts)}">Nothing here yet. Start the conversation.</div>
+      <div class="item who-row" style="align-items:flex-start" th:each="p : ${posts}">
+        <span class="badge" th:text="${p.author.initials}">AB</span>
+        <span style="flex:1">
+          <strong th:text="${p.author.fullName}">Name</strong>
+          <span class="tag coach" th:if="${p.author.coach}">Coach</span>
+          <span class="tag draw" th:if="${p.askCoach and !p.removed}">Question for coach</span>
+          <span th:if="${!p.removed}" th:text="${p.body}">Message</span>
+          <span th:if="${p.removed}" class="muted" style="font-style:italic">Message removed by coach.</span>
+          <span class="muted small" th:text="${#temporals.format(p.createdAt, 'dd MMM, h:mm a')}">Time</span>
+          <form th:if="${me.coach and !p.removed}" th:action="@{/coach/team/discussion/{id}/delete(id=${p.id})}" method="post" style="margin-top:4px" onsubmit="return confirm('Delete this message for everyone?');">
+            <button class="btn sm line" type="submit">Delete</button>
+          </form>
+        </span>
+      </div>
+    </div>
+
+    <div class="card editable">
+      <h2>New message</h2>
+      <form class="form" th:action="@{/team/discussion}" method="post">
+        <div class="field"><label for="body">Message</label><textarea id="body" name="body" maxlength="1000" required></textarea></div>
+        <div class="field" th:if="${!me.coach}"><label><input type="checkbox" name="askCoach" value="true"> This is a question for the coach</label></div>
+        <div><button class="btn" type="submit">Post message</button></div>
+      </form>
+    </div>
+  </div>
+</section>
+</body>
+</html>

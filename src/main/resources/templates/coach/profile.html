@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Coach profile | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>My coach profile</h1><p>Your professional details. Players and teammates see your name and sport.</p></div></div>
+  <div class="card editable">
+    <form class="form" th:action="@{/coach/profile}" method="post">
+      <div class="row">
+        <div class="field"><label for="fullName">Full name</label><input id="fullName" type="text" name="fullName" th:value="${me.fullName}" required></div>
+        <div class="field"><label for="phone">Contact number</label><input id="phone" type="text" name="phone" th:value="${cp.phone}"></div>
+        <div class="field"><label for="city">City</label><input id="city" type="text" name="city" th:value="${cp.city}"></div>
+      </div>
+      <div class="row">
+        <div class="field" th:if="${cp.sport != null and !cp.sport.isBlank()}"><label for="sportLocked">Sport</label><input id="sportLocked" type="text" th:value="${cp.sport}" readonly><div class="hint">Locked. To coach another sport, create a separate account.</div></div>
+        <div class="field" th:if="${cp.sport == null or cp.sport.isBlank()}"><label for="sport">Sport (choose once)</label><input id="sport" type="text" name="sport" required><div class="hint">This applies to every team you create and cannot be changed later.</div></div>
+        <div class="field"><label for="exp">Years of experience</label><input id="exp" type="number" min="0" max="70" name="experienceYears" th:value="${cp.experienceYears}"></div>
+      </div>
+      <div class="field"><label for="qual">Qualification</label><input id="qual" type="text" name="qualification" th:value="${cp.qualification}"></div>
+      <div class="field"><label for="cert">Certifications</label><input id="cert" type="text" name="certifications" th:value="${cp.certifications}"></div>
+      <div class="field"><label for="bio">About your coaching</label><textarea id="bio" name="bio" th:text="${cp.bio}"></textarea></div>
+      <div><button class="btn" type="submit">Save profile</button></div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

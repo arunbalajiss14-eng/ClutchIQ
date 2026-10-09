@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>My profile | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>My profile</h1><p>Keep your details current. Your performance ratings and strengths are set by your coach and are not editable here.</p></div></div>
+  <div class="card editable">
+    <span class="tagline blue">You can edit everything on this page</span>
+    <form class="form" th:action="@{/player/profile}" method="post">
+      <div class="row">
+        <div class="field"><label for="fn">Full name</label><input id="fn" type="text" name="fullName" th:value="${me.fullName}" required></div>
+        <div class="field"><label for="ph">Contact number</label><input id="ph" type="text" name="phone" th:value="${pp.phone}"></div>
+        <div class="field"><label for="ro">Position or role</label><input id="ro" type="text" name="playingRole" th:value="${pp.playingRole}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="ag">Age</label><input id="ag" type="number" min="5" max="70" name="age" th:value="${pp.age}"></div>
+        <div class="field"><label for="ht">Height (cm)</label><input id="ht" type="number" step="0.1" name="heightCm" th:value="${pp.heightCm}"></div>
+        <div class="field"><label for="wt">Weight (kg)</label><input id="wt" type="number" step="0.1" name="weightKg" th:value="${pp.weightKg}"></div>
+        <div class="field"><label for="sl">Sleep target (hours)</label><input id="sl" type="number" step="0.5" min="4" max="12" name="targetSleepHours" th:value="${pp.targetSleepHours}"><div class="hint">Your avatar and sleep check use this.</div></div>
+      </div>
+      <div class="field"><label for="goal">Personal goal</label><input id="goal" type="text" name="personalGoal" th:value="${pp.personalGoal}" placeholder="Set goal"></div>
+      <div><button class="btn" type="submit">Save profile</button></div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

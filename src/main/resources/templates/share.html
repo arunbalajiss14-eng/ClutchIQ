@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title th:text="${team.name} + ' ranking | ClutchIQ'">Team ranking | ClutchIQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="content" style="margin:0 auto;max-width:900px">
+  <div class="head">
+    <div>
+      <div class="brand" style="color:var(--ink);padding:0;font-size:1.6rem">Clutch<em>IQ</em></div>
+      <h1 style="margin-top:10px" th:text="${team.name}">Team</h1>
+      <p><span th:text="${team.sport}">Sport</span>. Overall player percentages, best first. Updated live from daily routines, the coach's rating and the last match.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="empty" th:if="${#lists.isEmpty(ranking)}">No players yet.</div>
+    <div class="scroll" th:if="${!#lists.isEmpty(ranking)}">
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Player</th><th>Role</th><th>Overall</th><th>Coach rating</th><th>Routine</th><th>Last match</th></tr></thead>
+        <tbody>
+          <tr th:each="r, s : ${ranking}">
+            <td><strong th:text="${s.count}">1</strong></td>
+            <td><div class="who-row"><span class="badge" th:text="${r.profile.user.initials}">AB</span><strong th:text="${r.profile.user.fullName}">Name</strong></div></td>
+            <td th:text="${r.profile.playingRole}">Role</td>
+            <td><span class="tag" th:classappend="${r.score.overall >= 70} ? 'win' : (${r.score.overall >= 55} ? 'draw' : 'loss')" th:text="${r.score.overall} + '%'">70%</span></td>
+            <td th:text="${r.score.performance} + '%'">70%</td>
+            <td th:text="${r.score.routine != null} ? ${r.score.routine} + '%' : '-'">-</td>
+            <td th:text="${r.score.lastMatch != null} ? ${r.score.lastMatch} + '%' : '-'">-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Overall = coach rating 40%, daily routine over the last 7 days 30%, last match rating 30%. Parts with no data yet are left out.</p>
+  </div>
+</main>
+</body>
+</html>

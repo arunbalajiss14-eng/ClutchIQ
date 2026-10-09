@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Upcoming match | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Upcoming match</h1><p>Match details from your coach. If you are picked, confirm that you will play.</p></div></div>
+
+  <div class="empty" th:if="${#lists.isEmpty(rows)}">No upcoming matches yet.</div>
+
+  <div th:each="r : ${rows}" class="card" style="margin-bottom:20px">
+    <div class="head" style="margin-bottom:10px">
+      <div>
+        <h2 th:text="'vs ' + ${r.match.opponent}">vs Team</h2>
+        <p class="small muted" th:text="${#temporals.format(r.match.matchDate, 'EEEE, dd MMM yyyy')} + (${r.match.matchTime} != null ? ' at ' + ${#temporals.format(r.match.matchTime, 'h:mm a')} : '')">Date</p>
+      </div>
+      <span class="tag" th:if="${!r.selected}">Not selected</span>
+      <span class="tag" th:if="${r.selected and !r.confirmed}" style="background:var(--gold-soft);color:#4A6B00">Awaiting your confirmation</span>
+      <span class="tag win" th:if="${r.selected and r.confirmed}">You are confirmed</span>
+    </div>
+
+    <div class="grid c4" style="margin-bottom:0">
+      <div class="item"><span class="muted small">Location</span><strong th:text="${r.match.location} ?: '-'">-</strong></div>
+      <div class="item"><span class="muted small">Minimum age</span><strong th:text="${r.match.ageRequirement != null} ? ${r.match.ageRequirement} : 'None'">None</strong></div>
+      <div class="item"><span class="muted small">Fee</span><strong th:text="${r.match.fee} ?: 'None'">None</strong></div>
+      <div class="item" th:if="${r.match.info != null and !r.match.info.isBlank()}"><span class="muted small">Notes from your coach</span><strong th:text="${r.match.info}">Info</strong></div>
+    </div>
+
+    <form th:if="${r.selected and !r.confirmed}" th:action="@{/player/matches/{id}/confirm(id=${r.match.id})}" method="post" style="margin-top:16px">
+      <button class="btn gold" type="submit">Confirm you will play</button>
+    </form>
+    <p class="small muted" style="margin-top:14px" th:if="${!r.selected}">Your coach has not picked you for this match yet. Check back closer to the date.</p>
+  </div>
+</section>
+</body>
+</html>

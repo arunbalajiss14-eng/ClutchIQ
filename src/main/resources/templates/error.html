@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Something went wrong | ClutchIQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Barlow:wght@400;500&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="auth" style="grid-template-columns:1fr">
+  <section class="pane" style="margin:0 auto;text-align:center">
+    <h2 th:text="${status == 404} ? 'That page does not exist' : (${status == 403} ? 'You do not have access to that page' : 'Something went wrong')">Something went wrong</h2>
+    <p class="muted">Go back to your dashboard and try again. If it keeps happening, tell your coach or the person who set this up.</p>
+    <p><a class="btn" th:href="@{/home}">Back to dashboard</a></p>
+  </section>
+</div>
+</body>
+</html>

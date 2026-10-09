@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Results | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Results</h1><p>Match results and each player's performance rating for that match.</p></div></div>
+
+  <div class="card" style="margin-bottom:20px" th:if="${me.coach and !#lists.isEmpty(awaiting)}">
+    <h2>Enter a match result</h2>
+    <p class="muted small">Pick a match that has been played. It moves into results below.</p>
+    <div class="item" th:each="m : ${awaiting}">
+      <details>
+        <summary style="cursor:pointer;font-weight:600" th:text="'vs ' + ${m.opponent} + ', ' + ${#temporals.format(m.matchDate, 'dd MMM')}">Match</summary>
+        <form class="form" style="margin-top:12px" th:action="@{/coach/team/matches/{id}/result(id=${m.id})}" method="post">
+          <div class="row">
+            <div class="field"><label>Our score</label><input type="number" name="ourScore" min="0" required></div>
+            <div class="field"><label>Their score</label><input type="number" name="theirScore" min="0" required></div>
+          </div>
+          <div class="field"><label>What went well</label><textarea name="wentWell"></textarea></div>
+          <div class="field"><label>Needs improvement</label><textarea name="needsImprovement"></textarea></div>
+          <div class="field"><label>Next training focus</label><textarea name="nextTrainingFocus"></textarea></div>
+          <div><button class="btn sm" type="submit">Save result</button></div>
+        </form>
+      </details>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Previous results</h2>
+    <div class="empty" th:if="${#lists.isEmpty(results)}">No results recorded yet.</div>
+    <div class="item" th:each="rv : ${results}">
+      <div class="who-row" style="justify-content:space-between">
+        <strong th:text="'vs ' + ${rv.match.opponent}">vs Team</strong>
+        <span><span class="tag" th:classappend="${rv.match.resultLabel == 'WIN'} ? 'win' : (${rv.match.resultLabel == 'LOSS'} ? 'loss' : 'draw')" th:text="${rv.match.resultLabel}">WIN</span>
+          <strong th:text="${rv.match.ourScore} + ' to ' + ${rv.match.theirScore}">145 to 138</strong></span>
+      </div>
+      <span class="muted small" th:text="${#temporals.format(rv.match.matchDate, 'dd MMM yyyy')}">Date</span>
+      <div class="grid c3" style="margin:10px 0 0">
+        <div><span class="tag win">What went well</span><p class="small" th:text="${rv.match.wentWell}">-</p></div>
+        <div><span class="tag loss">Needs improvement</span><p class="small" th:text="${rv.match.needsImprovement}">-</p></div>
+        <div><span class="tag">Next training focus</span><p class="small" th:text="${rv.match.nextTrainingFocus}">-</p></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <span class="ai-badge">Player ratings for this match</span>
+        <div class="list" style="margin-top:8px">
+          <div class="item who-row" style="justify-content:space-between" th:each="rt : ${rv.ratings}">
+            <span th:text="${rt.player.user.fullName}">Name</span>
+            <span class="tag" th:classappend="${rt.rating >= 70} ? 'win' : (${rt.rating >= 50} ? 'draw' : 'loss')" th:text="${rt.rating}">70</span>
+          </div>
+          <div class="empty" th:if="${#lists.isEmpty(rv.ratings)}">No player ratings recorded for this match yet.</div>
+        </div>
+
+        <form th:if="${me.coach}" class="form" style="margin-top:12px" th:action="@{/coach/team/matches/{id}/ratings(id=${rv.match.id})}" method="post">
+          <div class="row">
+            <div class="field"><label>Player</label>
+              <select name="playerId" required><option th:each="r : ${roster}" th:value="${r.profile.id}" th:text="${r.profile.user.fullName}">Player</option></select></div>
+            <div class="field"><label>Rating (0 to 100)</label><input type="number" name="rating" min="0" max="100" required></div>
+          </div>
+          <div class="field"><label>Note</label><input type="text" name="note" placeholder="Strong innings, tired in the field"></div>
+          <div><button class="btn sm" type="submit">Save rating</button></div>
+        </form>
+
+        <form th:if="${me.coach}" th:action="@{/coach/matches/{id}/delete(id=${rv.match.id})}" method="post" style="margin-top:12px"
+              th:attr="data-opp=${rv.match.opponent}" onsubmit="return confirm('Delete the result vs ' + this.dataset.opp + '? This removes the result, squad and ratings for this match.');">
+          <input type="hidden" name="from" value="results">
+          <button class="btn sm line" type="submit">Delete this result</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

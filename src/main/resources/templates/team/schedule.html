@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Schedule | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Schedule</h1><p>Upcoming matches, training and tournaments for <strong th:text="${team.name}">Team</strong>.</p></div></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h2>Matches</h2>
+    <p class="muted small">Squad selection, fees and confirmations now live under <a th:href="@{${me.coach} ? '/coach/matches' : '/player/matches'}">Upcoming match</a>.</p>
+  </div>
+
+  <div class="grid c2">
+    <div class="card">
+      <h2>Training</h2>
+      <div class="empty" th:if="${#lists.isEmpty(trainings)}">No upcoming training.</div>
+      <div class="item" th:each="t : ${trainings}">
+        <strong th:text="${t.focus != null and !t.focus.isBlank()} ? ${t.focus} : 'Training session'">Focus</strong>
+        <span th:text="${#temporals.format(t.trainingDate, 'EEEE, dd MMM yyyy')} + (${t.trainingTime} != null ? ' at ' + ${#temporals.format(t.trainingTime, 'h:mm a')} : '')">Date</span>
+        <span class="muted small" th:if="${t.location != null and !t.location.isBlank()}" th:text="${t.location}">Place</span>
+        <span class="small" th:if="${t.instructions != null and !t.instructions.isBlank()}" th:text="${t.instructions}">Instructions</span>
+        <form th:if="${me.coach}" th:action="@{/coach/team/training/{id}/delete(id=${t.id})}" method="post" style="margin-top:8px" onsubmit="return confirm('Delete this training session?');">
+          <button class="btn sm line" type="submit">Delete</button>
+        </form>
+      </div>
+      <form class="form" th:if="${me.coach}" th:action="@{/coach/team/training}" method="post" style="margin-top:18px;padding-top:18px;border-top:2px solid var(--line)">
+        <h3>Add a training session</h3>
+        <div class="row">
+          <div class="field"><label for="td">Date</label><input id="td" type="date" name="trainingDate" required></div>
+          <div class="field"><label for="tt">Time</label><input id="tt" type="time" name="trainingTime"></div>
+        </div>
+        <div class="field"><label for="tl">Location</label><input id="tl" type="text" name="location"></div>
+        <div class="field"><label for="tf">Focus</label><input id="tf" type="text" name="focus" placeholder="Stamina, fielding, batting"></div>
+        <div class="field"><label for="ti">Instructions</label><textarea id="ti" name="instructions"></textarea></div>
+        <div><button class="btn sm" type="submit">Publish training</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Tournaments</h2>
+    <div class="empty" th:if="${#lists.isEmpty(tournaments)}">No upcoming tournaments.</div>
+    <div class="item" th:each="t : ${tournaments}">
+      <strong th:text="${t.name}">Cup</strong>
+      <span th:text="${#temporals.format(t.startDate, 'EEEE, dd MMM yyyy')} + (${t.location} != null ? ' at ' + ${t.location} : '')">Date</span>
+      <span class="small" th:if="${t.info != null and !t.info.isBlank()}" th:text="${t.info}">Info</span>
+      <form th:if="${me.coach}" th:action="@{/coach/team/tournaments/{id}/delete(id=${t.id})}" method="post" style="margin-top:8px" onsubmit="return confirm('Delete this tournament?');">
+        <button class="btn sm line" type="submit">Delete</button>
+      </form>
+    </div>
+    <form class="form" th:if="${me.coach}" th:action="@{/coach/team/tournaments}" method="post" style="margin-top:18px;padding-top:18px;border-top:2px solid var(--line)">
+      <h3>Add a tournament</h3>
+      <div class="row">
+        <div class="field"><label for="tn">Name</label><input id="tn" type="text" name="name" required></div>
+        <div class="field"><label for="tsd">Start date</label><input id="tsd" type="date" name="startDate" required></div>
+        <div class="field"><label for="tloc">Location</label><input id="tloc" type="text" name="location"></div>
+      </div>
+      <div class="field"><label for="tinf">Important information</label><textarea id="tinf" name="info"></textarea></div>
+      <div><button class="btn sm" type="submit">Publish tournament</button></div>
+    </form>
+  </div>
+</section>
+</body>
+</html>

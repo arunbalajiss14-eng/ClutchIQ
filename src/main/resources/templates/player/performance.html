@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>My performance | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>My performance</h1><p>Your coach keeps this record. You can read everything here, and only your coach can change it.</p></div></div>
+
+  <div class="grid c3">
+    <div class="stat blue"><div class="num" th:text="${a.performanceScore}">0</div><div class="lbl">Performance rating</div></div>
+    <div class="stat"><div class="num" th:text="${a.staminaScore}">0</div><div class="lbl">Stamina rating</div></div>
+    <div class="card"><h2>Progress</h2>
+      <div class="empty" th:if="${#lists.isEmpty(history)}">No ratings yet.</div>
+      <div class="spark" style="height:90px" th:if="${!#lists.isEmpty(history)}">
+        <div class="col" th:each="h : ${history}"><i th:style="'height:' + ${h.score} + '%'"></i><span th:text="${#temporals.format(h.entryDate, 'dd MMM')}">Date</span></div>
+      </div></div>
+  </div>
+
+  <div class="card locked">
+    <span class="tagline">Set by your coach. Read only.</span>
+    <div class="grid c2" style="margin-bottom:0">
+      <div>
+        <div class="item"><span class="muted small">Strength</span><strong th:text="${a.strength} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Weakness</span><strong th:text="${a.weakness} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Best in</span><strong th:text="${a.bestIn} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Worst in</span><strong th:text="${a.worstIn} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Recent performance</span><strong th:text="${a.recentPerformance} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Historical performance</span><strong th:text="${a.historicalPerformance} ?: '-'">-</strong></div>
+      </div>
+      <div>
+        <div class="item"><span class="muted small">Improvement areas</span><strong th:text="${a.improvementAreas} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Training requirements</span><strong th:text="${a.trainingRequirements} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Coach feedback</span><strong th:text="${a.coachNotes} ?: '-'">-</strong></div>
+        <div class="item"><span class="muted small">Last updated</span><strong th:text="${#temporals.format(a.updatedAt, 'dd MMM yyyy')}">Date</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid c2" style="margin-top:20px">
+    <div class="card">
+      <h2>Overall score</h2>
+      <div class="who-row" style="gap:18px;flex-wrap:wrap">
+        <div th:replace="~{fragments/parts :: ring(${overall.overall}, 'overall')}"></div>
+        <div class="small">
+          <div class="item"><span class="muted">Coach rating (40%)</span><strong th:text="${overall.performance} + '%'">70%</strong></div>
+          <div class="item"><span class="muted">Daily routine, 7 days (30%)</span><strong th:text="${overall.routine != null} ? ${overall.routine} + '%' : 'Not logged yet'">70%</strong></div>
+          <div class="item"><span class="muted">Last match (30%)</span><strong th:text="${overall.lastMatch != null} ? ${overall.lastMatch} + '%' : 'Not rated yet'">70%</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="card locked">
+      <span class="tagline">Set by your coach. Read only.</span>
+      <h2>Match performance</h2>
+      <div class="empty" th:if="${#lists.isEmpty(matchRatings)}">Your coach has not rated a match yet.</div>
+      <div class="item who-row" style="justify-content:space-between" th:each="r : ${matchRatings}">
+        <span><strong th:text="'vs ' + ${r.match.opponent}">vs Team</strong>
+          <span class="muted small" th:text="${#temporals.format(r.match.matchDate, 'dd MMM yyyy')}">Date</span>
+          <span class="small" th:if="${r.note != null and !r.note.isBlank()}" th:text="${r.note}">Note</span></span>
+        <span class="tag" th:classappend="${r.rating >= 70} ? 'win' : (${r.rating >= 50} ? 'draw' : 'loss')" th:text="${r.rating} + '%'">70%</span>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

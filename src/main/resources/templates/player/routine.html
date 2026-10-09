@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Daily routine | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Daily routine</h1><p>Mark what you actually did. Your digital avatar follows the full routine, so this is how the gap is measured.</p></div></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <div class="chips">
+      <a class="btn sm line" th:each="d, s : ${days}" th:href="@{/player/routine(date=${d})}"
+         th:classappend="${d == day} ? 'gold'" th:text="${s.first} ? 'Today' : (${s.index} == 1 ? 'Yesterday' : ${#temporals.format(d, 'EEE dd MMM')})">Today</a>
+    </div>
+  </div>
+
+  <form th:action="@{/player/routine}" method="post">
+    <input type="hidden" name="date" th:value="${day}">
+    <div class="grid c21">
+      <div class="card editable">
+        <h2>Routine for <span th:text="${#temporals.format(day, 'EEEE, dd MMM')}">today</span></h2>
+        <div class="seg-row" th:each="c : ${cats}">
+          <div class="name"><span th:text="${c.label}">Food</span><small th:text="${c.hint}">hint</small></div>
+          <div class="segs" role="radiogroup" th:attr="aria-label=${c.label}">
+            <label class="seg"><input type="radio" th:name="${c.key}" value="DONE" th:checked="${c.value == 'DONE'}"><span class="done">Done</span></label>
+            <label class="seg"><input type="radio" th:name="${c.key}" value="PARTIAL" th:checked="${c.value == 'PARTIAL'}"><span class="part">Partly</span></label>
+            <label class="seg"><input type="radio" th:name="${c.key}" value="MISSED" th:checked="${c.value == 'MISSED'}"><span class="miss">Missed</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card editable">
+        <h2>Sleep and energy</h2>
+        <div class="form">
+          <div class="field"><label for="sleep">Hours slept last night</label>
+            <input id="sleep" type="number" step="0.5" min="0" max="16" name="sleepHours" th:value="${log.sleepHours}">
+            <div class="hint" th:text="'Your target is ' + ${pp.targetSleepHours} + ' hours.'">Target</div></div>
+          <div class="field"><label for="energy">Energy today: <strong id="energyOut">7</strong> of 10</label>
+            <input id="energy" type="range" min="1" max="10" name="energy" th:value="${log.energy != null} ? ${log.energy} : 7" data-out="energyOut"></div>
+          <div class="field"><label for="note">Note</label><textarea id="note" name="note" th:text="${log.note}" placeholder="Sore legs, skipped dinner, felt great"></textarea></div>
+          <div><button class="btn" type="submit">Save routine</button></div>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
+</body>
+</html>

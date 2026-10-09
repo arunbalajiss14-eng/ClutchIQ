@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Deleted players | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head">
+    <div><h1>Deleted players</h1><p>Removed from <strong th:text="${activeTeam.name}">Team</strong>. They cannot sign in, but their routine, performance and match history is kept. Restore brings their login back.</p></div>
+    <a class="btn line sm" th:href="@{/coach/players}">Back to players</a>
+  </div>
+  <div class="card">
+    <div class="empty" th:if="${#lists.isEmpty(rows)}">No deleted players.</div>
+    <div class="scroll" th:if="${!#lists.isEmpty(rows)}">
+      <table class="tbl">
+        <thead><tr><th>Player</th><th>Removed</th><th></th></tr></thead>
+        <tbody>
+          <tr th:each="pp : ${rows}">
+            <td><div class="who-row"><span class="badge" th:text="${pp.user.initials}">AB</span>
+              <span><strong th:text="${pp.user.fullName}">Name</strong><br><span class="muted small" th:text="${pp.user.email}">mail</span></span></div></td>
+            <td th:text="${pp.user.removedAt != null} ? ${#temporals.format(pp.user.removedAt, 'dd MMM yyyy')} : '-'">Date</td>
+            <td class="right">
+              <form th:action="@{/coach/players/{id}/restore(id=${pp.id})}" method="post">
+                <button class="btn sm" type="submit">Restore</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</body>
+</html>

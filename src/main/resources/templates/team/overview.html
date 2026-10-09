@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Team | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head">
+    <div>
+      <h1 th:text="${team.name}">Team</h1>
+      <p><span th:text="${team.sport}">Sport</span>. Coach: <strong th:text="${team.coach.fullName}">Coach</strong>. <span th:text="${team.description}"></span></p>
+    </div>
+  </div>
+
+  <div class="grid c4">
+    <div class="stat blue">
+      <div class="lbl">Next match</div>
+      <div class="num" style="font-size:1.7rem" th:text="${nextMatch != null} ? 'vs ' + ${nextMatch.opponent} : 'None yet'">None</div>
+      <div class="lbl" th:if="${nextMatch != null}" th:text="${#temporals.format(nextMatch.matchDate, 'EEE, dd MMM')}">Date</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">Next training</div>
+      <div class="num" style="font-size:1.7rem" th:text="${nextTraining != null} ? ${#temporals.format(nextTraining.trainingDate, 'EEE, dd MMM')} : 'None yet'">None</div>
+      <div class="lbl" th:if="${nextTraining != null}" th:text="${nextTraining.focus}">Focus</div>
+    </div>
+    <div class="stat gold">
+      <div class="lbl">Next tournament</div>
+      <div class="num" style="font-size:1.7rem" th:text="${nextTournament != null} ? ${nextTournament.name} : 'None yet'">None</div>
+      <div class="lbl" th:if="${nextTournament != null}" th:text="${#temporals.format(nextTournament.startDate, 'dd MMM yyyy')}">Date</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">Last result</div>
+      <div class="num" th:text="${lastResult != null} ? ${lastResult.resultLabel} : '-'">-</div>
+      <div class="lbl" th:if="${lastResult != null}" th:text="|${lastResult.ourScore} to ${lastResult.theirScore} vs ${lastResult.opponent}|">Score</div>
+    </div>
+  </div>
+
+  <div class="grid c21">
+    <div class="card">
+      <h2>Coach announcements</h2>
+      <div class="empty" th:if="${#lists.isEmpty(news)}">No announcements yet.</div>
+      <div class="item" th:each="n : ${news}">
+        <strong th:text="${n.title}">Title</strong>
+        <span th:text="${n.body}">Body</span>
+        <span class="muted small" th:text="${#temporals.format(n.createdAt, 'dd MMM, h:mm a')}">Date</span>
+      </div>
+
+      <form class="form" th:if="${me.coach}" th:action="@{/coach/team/announcements}" method="post" style="margin-top:18px;padding-top:18px;border-top:2px solid var(--line)">
+        <h3>Post an announcement</h3>
+        <div class="field"><label for="at">Title</label><input id="at" type="text" name="title" required></div>
+        <div class="field"><label for="ab">Message</label><textarea id="ab" name="body"></textarea></div>
+        <div><button class="btn sm" type="submit">Post announcement</button></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Squad</h2>
+      <div class="empty" th:if="${#lists.isEmpty(roster)}">No players yet.</div>
+      <div class="item who-row" th:each="r : ${roster}">
+        <span class="badge" th:text="${r.profile.user.initials}">AB</span>
+        <span><strong th:text="${r.profile.user.fullName}">Name</strong><span class="muted small" th:text="${r.profile.playingRole}">Role</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

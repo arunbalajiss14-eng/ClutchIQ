@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+<head><title>Players | ClutchIQ</title></head>
+<body>
+<section>
+  <div class="head"><div><h1>Players</h1><p>Everyone on <strong th:text="${activeTeam.name}">Team</strong>. Open a player to update their strengths, weaknesses and performance.</p></div></div>
+
+  <div class="card" style="margin-bottom:20px">
+    <p class="muted small">Overall % = coach rating (40%) + daily routine, last 7 days (30%) + last match rating (30%). Hover a percentage to see the parts. Best first, so you can pick your squad on the Schedule page.</p>
+    <div class="empty" th:if="${#lists.isEmpty(rows)}">No players yet. Add the first one below.</div>
+    <div class="scroll" th:if="${!#lists.isEmpty(rows)}">
+      <table class="tbl">
+        <thead><tr><th>Player</th><th>Role</th><th>Strength</th><th>Weakness</th><th>Overall</th><th></th><th></th></tr></thead>
+        <tbody>
+          <tr th:each="r : ${rows}">
+            <td><div class="who-row"><span class="badge" th:text="${r.profile.user.initials}">AB</span>
+              <span><strong th:text="${r.profile.user.fullName}">Name</strong><br><span class="muted small" th:text="${r.profile.user.email}">mail</span></span></div></td>
+            <td th:text="${r.profile.playingRole}">Role</td>
+            <td th:text="${r.assessment.strength}">-</td>
+            <td th:text="${r.assessment.weakness}">-</td>
+            <td><span class="tag" th:classappend="${r.score.overall >= 70} ? 'win' : (${r.score.overall >= 55} ? 'draw' : 'loss')" th:text="${r.score.overall} + '%'"
+                  th:title="'Coach rating ' + ${r.score.performance} + '%, routine ' + (${r.score.routine} != null ? ${r.score.routine} + '%' : 'not logged') + ', last match ' + (${r.score.lastMatch} != null ? ${r.score.lastMatch} + '%' : 'not rated')">60%</span></td>
+            <td class="right"><a class="btn sm" th:href="@{/coach/players/{id}(id=${r.profile.id})}">Open</a></td>
+            <td class="right">
+              <form th:action="@{/coach/players/{id}/remove(id=${r.profile.id})}" method="post"
+                    onsubmit="return confirm('Remove ' + '&quot;' + this.dataset.name + '&quot;' + '? They will no longer be able to sign in. Their routine and performance history is kept.');"
+                    th:attr="data-name=${r.profile.user.fullName}">
+                <button class="btn sm line" type="submit">Remove</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px"><a th:href="@{/coach/players/deleted}">Deleted players</a><span th:if="${deletedCount > 0}" th:text="' (' + ${deletedCount} + ')'"> (0)</span></p>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h2>Share the ranking</h2>
+    <p class="muted small">A public link that shows every player's overall percentage. It needs no login, so only share it with people you trust. Turn it off any time.</p>
+    <div th:if="${shareUrl != null}">
+      <div class="field"><input type="text" readonly th:value="${shareUrl}" onclick="this.select()" aria-label="Share link"></div>
+      <form th:action="@{/coach/share/disable}" method="post" style="margin-top:10px"><button class="btn sm line" type="submit">Turn link off</button></form>
+    </div>
+    <form th:if="${shareUrl == null}" th:action="@{/coach/share/enable}" method="post"><button class="btn sm" type="submit">Create share link</button></form>
+  </div>
+
+  <div class="card editable">
+    <h2>Add a player</h2>
+    <p class="muted small">You create the account. Share the email and temporary password with the player, who can then update their own details.</p>
+    <form class="form" th:action="@{/coach/players}" method="post">
+      <div class="row">
+        <div class="field"><label for="fullName">Full name</label><input id="fullName" type="text" name="fullName" required></div>
+        <div class="field"><label for="email">Email (their login)</label><input id="email" type="email" name="email" required></div>
+        <div class="field"><label for="password">Temporary password</label><input id="password" type="text" name="password" minlength="6" required></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="age">Age</label><input id="age" type="number" min="5" max="70" name="age"></div>
+        <div class="field"><label for="h">Height (cm)</label><input id="h" type="number" step="0.1" name="heightCm"></div>
+        <div class="field"><label for="w">Weight (kg)</label><input id="w" type="number" step="0.1" name="weightKg"></div>
+        <div class="field"><label for="ph">Contact number</label><input id="ph" type="text" name="phone"></div>
+        <div class="field"><label for="role">Position or role</label><input id="role" type="text" name="playingRole" placeholder="Opening batter"></div>
+      </div>
+      <div><button class="btn" type="submit">Add player</button></div>
+    </form>
+  </div>
+</section>
+</body>
+</html>
