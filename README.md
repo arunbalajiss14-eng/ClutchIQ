@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ClutchIQ — AI Performance Coach
 
 Sports performance and team management platform (Spring Boot 3.5, Java 17+ or 21, MySQL, Thymeleaf).
@@ -46,3 +47,6 @@ Set `app.seed-demo=false` in application.properties for an empty database.
 - Training and tournaments: delete from the Schedule page.
 - Discussion: a coach can delete any message (Discussion page). The row is kept but the text is hidden,
   so the thread still reads naturally.
+=======
+# ClutchIQ
+>>>>>>> origin/main
